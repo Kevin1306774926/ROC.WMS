@@ -1,0 +1,186 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<table id="dg"></table>
+<div id="dlg" class="easyui-dialog" style="width:600px;height:480px;padding:5px" closed="true" buttons="#dlg-buttons">
+    <div class="ftitle">@ViewBag.Title</div>
+    <form id="fm" method="post" nvalidate>
+                <input name="Id" hidden />
+        <div class="fitem">            
+            <label>编号：</label><input name="Code" class="easyui-textbox" required="true" />
+        </div>                
+
+        <div class="fitem">            
+            <label>名称：</label><input name="Name" class="easyui-textbox" required="true" />
+        </div>                
+
+        <div class="fitem">            
+            <label>密码：</label><input name="Password" class="easyui-textbox" type="password" required="true" />
+        </div>                
+
+        <div class="fitem">
+            <label>是否停用：</label>
+            <select class="easyui-combobox" name="IsStop">
+                <option value="true">是</option>
+                <option value="false">否</option>
+            </select>
+        </div>
+        <div class="fitem">            
+            <label>操作员：</label><input name="Operator" class="easyui-textbox" required="true" />
+        </div>                
+
+         <div class="fitem">            
+            <label>时间：</label><input name="OpTime" class="easyui-datebox" required="true" />
+         </div>
+        
+    </form>
+</div>
+<div id="dlg-buttons">
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="Save()" style="width:90px">保存</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width:90px">取消</a>
+</div>
+
+@section scripts{    
+<script type="text/javascript">
+    var url;
+
+    $(function () {
+        $('#dg').datagrid(
+        {
+            url: '/user/list',
+            method: 'post',
+            rownumbers: true,
+            pagination: true,
+            fit: true,
+            striped: true,
+            showFooter: true,
+            sortName: 'Code',
+            sortOrder: 'desc',
+            columns: [[
+                { title: '编号', field: 'Code', width: 120, sortable: true },
+                { title: '名称', field: 'Name', width: 120, sortable: true },                
+                {
+                    title: '是否停用', field: 'IsStop', width: 80, align: 'center',
+                    formatter: function (val, row) {
+                        return val == true ? '<input  type="checkbox" checked="true" disabled="true"/>' : '<input  type="checkbox" disabled="true"/>';
+                    }
+                },
+                { title: '操作员', field: 'Operator', width: 120, sortable: true },
+            { title: '时间', field: 'OpTime', width: 150, sortable: true, formatter:DateTimeFormatter},
+
+            ]],
+            toolbar: [
+            {
+                id: 'btnreload',
+                text: '刷新',
+                iconCls: 'icon-reload',
+                handler: function () {
+                    $('#dg').datagrid('reload');
+                }
+            },
+            {
+                id: 'btncreate',
+                text: '添加',
+                iconCls: 'icon-add',
+                handler: function () {
+                    $('#btnsave').linkbutton('enable');
+                    Create();
+                }
+            },
+                {
+                    id: 'btnedit',
+                    text: '修改',
+                    iconCls: 'icon-edit',
+                    handler: function () {
+                        $('#btnedit').linkbutton('enable');
+                        Edit();
+                    }
+                }, '-',
+                {
+                    id: 'btndetele',
+                    text: '删除',
+                    iconCls: 'icon-cancel',
+                    handler: function () {
+                        Delete();
+                    }
+                }
+            ]
+
+        });
+    });
+
+    function Create() {
+        $('#dlg').dialog('open').dialog('setTitle', '添加');
+        $('#fm').form('clear');
+        url = '/User/Create';
+    }
+
+    function Edit() {
+        var row = $('#dg').datagrid('getSelected');
+        if(row)
+        {
+            $('#dlg').dialog('open').dialog('setTitle', '编辑');
+            $('#fm').form('load', row);
+            url = '/User/Edit';
+        }
+    }
+
+    function Delete() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            $.messager.confirm('警告', '你确定要删除该记录吗？', function (r) {
+                if (r) {
+                    $.post('/User/Delete', { id: row.Id }, function (result) {
+
+                        if (result.Msg)
+                        {
+                            $.messager.show({
+                                title: 'Error',
+                                msg: result.Msg
+                            });
+                        }
+                        else
+                        {
+                            $('#dg').datagrid('reload');
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    function Save() {
+        $('#fm').form('submit', {
+            url: url,
+            onSubmit: function () {
+                var flag = $(this).form('validate');
+                if (flag) {
+                    ShowProcess(true, '温馨提示', '正在提交数据...');
+                }
+                return flag;
+            },
+            success: function (result) {
+                ShowProcess(false);
+                var result = eval('(' + result + ')');
+                if (result.Msg) {
+                    $.messager.show({
+                        title: 'Error',
+                        msg: result.Msg
+                    });
+                }
+                else {
+                    $('#dlg').dialog('close');
+                    $('#dg').datagrid('reload');                    
+                }
+            },
+            onLoadError: function () {
+                ShowProcess(false);
+                $.messager.alert('温馨提示', '由于网络或服务器繁忙，提交失败，请重试!');
+            }
+        });
+    }
+
+</script>    
+}

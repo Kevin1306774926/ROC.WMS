@@ -18,7 +18,7 @@ namespace ROC.BLL
         T Get(Object id);
         //查询
         IQueryable<T> Get(Expression<Func<T, bool>> whereLambda);
-
+        IQueryable<T> Get(Expression<Func<T, bool>> whereLambda, string include);
         //分页查询
         IQueryable<T> Get<S>(
             Expression<Func<T, bool>> whereLambada,

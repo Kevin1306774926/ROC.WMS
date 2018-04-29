@@ -21,71 +21,65 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using ROC.Modles;
+using ROC.Service;
 
 namespace <#= Namespace #>
 {
-    public class <#= ControllerName #> : Controller
+    public class <#= ControllerName #> : BaseController
     {
+        <#= ControllerRootName #>Service  service=new <#= ControllerRootName #>Service();
         // GET: <#= routePrefix #>
         public ActionResult Index()
         {
             return View();
         }
 
-        // GET: <#= routePrefix #>/Details/5
-        public ActionResult Details(int id)
+        public ActionResult List()
         {
-            return View();
-        }
+            int pageIndex = Request["page"] == null ? 1 : int.Parse(Request["page"]);
+            int pageSize = Request["rows"] == null ? 1 : int.Parse(Request["rows"]);
+            string sortName = Request["sort"];
+            string sortOrder = Request["order"];
+            bool IsAsc = sortOrder == null ? true : sortOrder.ToUpper().Equals("ASC");
+            int total = 0;
 
-        // GET: <#= routePrefix #>/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
+            var data = service.Get(t => true, sortName, pageSize, pageIndex, out total, IsAsc);
+            var result = new { total = total, rows = data };
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }        
 
         // POST: <#= routePrefix #>/Create
         [HttpPost]
-        public ActionResult Create(FormCollection collection)
+        public ActionResult Create(<#= ControllerRootName #> model)
         {
             try
             {
-                // TODO: Add insert logic here
-
-                return RedirectToAction("Index");
+                service.Add(model);
             }
-            catch
+             catch(Exception ex)
             {
-                return View();
+                //return View();
+                Success = false;
+                Message = ex.Message;
             }
-        }
-
-        // GET: <#= routePrefix #>/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
+            return EasyUIResult();
         }
 
         // POST: <#= routePrefix #>/Edit/5
         [HttpPost]
-        public ActionResult Edit(int id, FormCollection collection)
+        public ActionResult Edit(<#= ControllerRootName #> model)
         {
             try
             {
-                // TODO: Add update logic here
-
-                return RedirectToAction("Index");
+                service.Update(model);
             }
-            catch
+            catch(Exception ex)
             {
-                return View();
+                Success = false;
+                Message = ex.Message;
             }
-        }
-
-        // GET: <#= routePrefix #>/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
+            return EasyUIResult();
         }
 
         // POST: <#= routePrefix #>/Delete/5
@@ -94,14 +88,14 @@ namespace <#= Namespace #>
         {
             try
             {
-                // TODO: Add delete logic here
-
-                return RedirectToAction("Index");
+                service.Delete(t => t.Id.ToString() == id);                
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                Success = false;
+                Message = ex.Message;                
             }
+            return EasyUIResult();
         }
     }
 }

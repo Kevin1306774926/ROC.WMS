@@ -6,30 +6,14 @@
 </div>
 <div data-options="region:'west',split:true,title:'菜单导航栏'" style="width:230px;background:#ef1e1e;">
     <div id="aa" class="easyui-accordion" data-options="fit:true">
-        <div title="权限管理" data-options="iconCls:'icon-search',selected:true" style="overflow:auto;padding:10px;">
-            <ul id="menu" class="easyui-tree" data-options="url:'/MenuClass/MenuTree',method:'get'"></ul>
-            <ul class="menu">
-                <li><a t="用户管理" v="/UserInfo/List" href="#">用户列表</a></li>
-                <li><a t="角色管理" v="/Role/List" href="#">角色管理</a></li>
-                <li><a t="用户角色分配" v="/UserRole/index" href="#">用户角色分配</a></li>
-                <li><a t="用户分类" v="/MenuClass/index" href="#">用户分类</a></li>
-                <li><a t="动作管理" v="/ActionInfo/index" href="#">动作管理</a></li>
-            </ul>
-        </div>
-
-        <div title="系统菜单" data-options="iconCls:'icon-tip'" style="padding:1px 10px;">
-            <a href="javascript:void(0)" class="easyui-linkbutton" style="width:90px;height:55px; margin:2px;" data-options="size:'large',iconCls:'icon-large-pencil',iconAlign:'top',plain:true" onclick="OpenTab('系统参数','/DeviceInfo/index')">系统参数</a>
-            <a href="javascript:void(0)" class="easyui-linkbutton" style="width:90px;height:55px;margin:2px;" data-options="size:'large',iconCls:'icon-large-clipart',iconAlign:'top',plain:true" onclick="OpenTab('场地密码','/DeviceInfo/groundkey')">场地密码</a>
-            <a href="javascript:void(0)" class="easyui-linkbutton" style="width:90px;height:55px;margin:2px;" data-options="size:'large',iconCls:'icon-large-clipart',iconAlign:'top',plain:true" onclick="OpenTab('用户管理','/users/index')">用户管理</a>
-            <a href="javascript:void(0)" class="easyui-linkbutton" style="width:90px;height:55px;margin:2px;" data-options="size:'large',iconCls:'icon-large-clipart',iconAlign:'top',plain:true" onclick="OpenTab('权限管理','/permission/index')">权限管理</a>
-            <a href="javascript:void(0)" class="easyui-linkbutton" style="width:90px;height:55px;margin:2px;" data-options="size:'large',iconCls:'icon-large-clipart',iconAlign:'top',plain:true" onclick="OpenTab('软件版本','/DeviceInfo/reg')">软件版本</a>
-            <p></p>
+        <div title="主菜单" data-options="iconCls:'icon-search',selected:true" style="overflow:auto;padding:10px;">
+            <ul id="menu"></ul>   
         </div>
     </div>
 </div>
-<div data-options="region:'center',border:false" style="padding:1px;overflow:hidden;">
+<div data-options="region:'center'">
     <div id="tabs" class="easyui-tabs" data-options="fit:true">
-        <div id="home_page" title="首页" style="padding:0px;">
+        <div id="home_page" title="首页">
                 欢迎使用瑞科条码管理系统。
             </div>
     </div>
@@ -39,33 +23,21 @@
 @section scripts{
     <script type="text/javascript">
         $(function () {
-            InitMenu();
-        });
-
-        function InitMenu() {
-            var menus = $('.menu a');
-            $.each(menus, function (i, v) {
-                $(v).on("click", function () {
-                    OpenTab($(v).attr("t"), $(v).attr("v"));
-                });
-            });
-        }
-
-        function InitPage() {
-            var menus = $('.easyui-tree');
-            $.each(menus, function (i, v) {
-                $(v).tree(
-                {
-                    onClick: function (node) {
-                        var title = node.text;
-                        if (node.attributes != undefined) {
-                            OpenTab(title, node.attributes.url);
-                        }
+            $('#menu').tree({
+                url: '/MenuClass/MenuTree',
+                animate: true,
+                onLoadSuccess: function () {
+                    $('#menu').tree('collapseAll');
+                },
+                onClick: function (node) {
+                    var title = node.text;
+                    if (node.attributes != undefined&&node.attributes.url!=undefined) {
+                        OpenTab(title, node.attributes.url);
                     }
-                });
+                }
             });
-        }
-
+        });
+        
         function OpenTab(title, value) {
             if ($('#tabs').tabs("exists", title)) {
                 $("#tabs").tabs("select", title);
@@ -81,7 +53,7 @@
 
         function CreateIFame(src) {
             //var iframe = "<iframe width='100%' height='100%' scrolling='no' frameborder='0' src='" + src + "'></iframe>";
-            var iframe = "<iframe frameborder=0 width='100%' height='99.5%' id='iframepage' name='iframepage' scrolling='no' frameborder='0' src='" + src + "' ></iframe>";
+            var iframe = "<iframe frameborder=0 width='100%' height='99.8%' id='iframepage' name='iframepage' scrolling='no' frameborder='0' src='" + src + "' ></iframe>";
             return iframe;
         }
 

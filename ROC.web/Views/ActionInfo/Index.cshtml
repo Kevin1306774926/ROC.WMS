@@ -1,23 +1,95 @@
-﻿@{
-    ViewBag.Title = "动作列表";
+﻿
+@{
+    ViewBag.Title = "菜单功能";
 }
-<table id="dg"></table>
-<div id="dialog" style="overflow:hidden"></div>
+<div class="easyui-layout" data-options="fit:true">
+    <div data-options="region:'west',title:'菜单',split:true" style="width:300px;padding:1px;">
+        <ul id="menu"></ul>   
+    </div>
+    <div data-options="region:'center',title:'功能',split:true">
+
+        <table id="dg"></table>
+        <div id="dlg" class="easyui-dialog" style="width:600px;height:480px;padding:5px" closed="true" buttons="#dlg-buttons">
+            <div class="ftitle">@ViewBag.Title</div>
+            <form id="fm" method="post" nvalidate>
+                <input name="Id" hidden />
+                @*<div class="fitem">
+                    <label>菜单：</label><input name="ControllerName" class="easyui-textbox" required="true" />
+                </div>*@
+                <div class="fitem">
+                    <label>功能：</label><input name="ActionName" class="easyui-textbox" required="true" />
+                </div>
+                <div class="fitem">
+                    <label>菜单名：</label><input name="Controller" class="easyui-textbox" required="true" />
+                </div>
+                <div class="fitem">
+                    <label>功能名：</label><input name="Action" class="easyui-textbox" required="true" />
+                </div>
+
+                <div class="fitem">
+                    <label>描述：</label><input name="Description" class="easyui-textbox"/>
+                </div>
+                @*<div class="fitem">
+                    <label>分类：</label><input name="MenuId" class="easyui-textbox" required="true" />
+                </div>
+                <div class="fitem">
+                    <label>是否启用：</label>
+                    <select class="easyui-combobox" name="IsUsed">
+                        <option value="true">是</option>
+                        <option value="false">否</option>
+                    </select>
+                </div>*@
+                <div class="fitem">
+                    <label>日期：</label><input name="OpTime" class="easyui-datetimebox" required="true" data-options="parser:DatetimeParser" />
+                </div>
+            </form>
+        </div>
+        <div id="dlg-buttons">
+            <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="Save()" style="width:90px">保存</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width:90px">取消</a>
+        </div>
+
+    </div>
+</div>
 
 
 @section scripts{    
 <script type="text/javascript">
-    $(function ()
-    {
-        InitDataGrid();
+    var url;
+    $(function () {
+        $('#menu').tree({
+            url: '/MenuClass/MenuTree',
+            animate: true,
+            onLoadSuccess: function () {
+                //$('#menu').tree('collapseAll');
+            },
+            onClick: function (node) {
+                var title = node.text;
+                if (node.attributes != undefined && node.attributes.controller!= undefined) {
+                    $.post('/ActionInfo/Get', { Id: node.attributes.controller }, function (result) {
+                        result = eval('(' + result + ')');
+                        if(result.Success)
+                        {
+                            $('#dg').datagrid('loadData', result.Data);
+                        }
+                        else {
+                            $.mesager.show({
+                                title: 'Error',
+                                msg:result.Message
+                            })
+                        }
+                    });
+                }
+            }
+        });
     });
 
-    function InitDataGrid()
-    {
+    $(function () {
         $('#dg').datagrid(
         {
-            url: '/ActionInfo/List',
-            method: 'post',            
+            //url: '/ActionInfo/List',
+            //method: 'post',
+            singleSelect:true,
             rownumbers: true,
             pagination: true,
             fit: true,
@@ -25,51 +97,53 @@
             showFooter: true,
             sortName: 'Id',
             sortOrder: 'desc',
-            columns: [[
-                { field: 'CK', checkbox: true },
-                { title: 'ID', field: 'Id', width: 80, sortable: true },
-                { title: '动作', field: 'Action', width: 120, sortable: true },
-                { title: '动作名称', field: 'ActionName', width: 120, sortable: true },
-                { title: '控制器', field: 'Controller', width: 120, sortable: true },
-                { title: '控制器名称', field: 'ControllerName', width: 120, sortable: true },
-                { title: '描述', field: 'Description', width: 300, sortable: true },
-                { title: '时间', field: 'OpTime', width: 150, sortable: true, formatter: DateTimeFormatter}
-                ]],
+            columns: [[                
+                { title: 'Id', field: 'Id', width: 80, sortable: true,hidden:true},
+                //{ title: '菜单', field: 'ControllerName', width: 120, sortable: true },
+                { title: '功能', field: 'ActionName', width: 120, sortable: true },
+                { title: '菜单名', field: 'Controller', width: 120, sortable: true },
+                { title: '功能名', field: 'Action', width: 120, sortable: true },                
+                { title: '描述', field: 'Description', width: 120, sortable: true },                
+                //{ title: '分类', field: 'MenuId', width: 120, sortable: true },
+                //{
+                //    title: '是否启用', field: 'IsUsed', width: 80, align: 'center',
+                //    formatter: function (val, row) {
+                //        return val == true ? '<input  type="checkbox" checked="true" disabled="true" />' : '<input  type="checkbox" disabled="true"/>';
+                //    }
+                //},
+                { title: '日期', field: 'OpTime', width: 150, sortable: true, formatter: DateTimeFormatter },
+            ]],
             toolbar: [
-                {
-                    id: 'btnload',
-                    text: '重新加载',
-                    iconCls: 'icon-reload',
-                    handler: function () {
-                        InitActions();
-                    }
-                },
+            {
+                id: 'btnload',
+                text: '重新加载',
+                iconCls: 'icon-reload',
+                handler: function () {
+                    InitActions();
+                }
+            },
             {
                 id: 'btnreload',
                 text: '刷新',
                 iconCls: 'icon-reload',
-                handler: function ()
-                {
+                handler: function () {
                     $('#dg').datagrid('reload');
                 }
             },
             {
-                id: 'btnadd',
+                id: 'btncreate',
                 text: '添加',
                 iconCls: 'icon-add',
-                handler: function ()
-                {
+                handler: function () {
                     $('#btnsave').linkbutton('enable');
-                    Add();
-
+                    Create();
                 }
             },
                 {
                     id: 'btnedit',
                     text: '修改',
                     iconCls: 'icon-edit',
-                    handler: function ()
-                    {
+                    handler: function () {
                         $('#btnedit').linkbutton('enable');
                         Edit();
                     }
@@ -78,97 +152,100 @@
                     id: 'btndetele',
                     text: '删除',
                     iconCls: 'icon-cancel',
-                    handler: function ()
-                    {
+                    handler: function () {
                         Delete();
                     }
                 }
             ]
 
         });
-    }
-
-    function InitActions()
-    {
+    });
+    function InitActions() {
         $.post('/ActionInfo/InitActions', null, function (result) {
-            if (result.message) {
-                $.messager.show({
-                    title: '提示',
-                    msg: result.message
-                });
+            result = eval('(' + result + ')');
+            if (result.Success) {
+                $('#dg').datagrid('reload');
             }
             else {
-                $('#dg').datagrid('reload');
+                $.messager.show({
+                    title: '提示',
+                    msg: result.Msg
+                });
             }
         });
     }
 
-    function Add()
-    {
-        $('#dialog').dialog(
-            {
-                title: '添加',
-                iconCls: 'icon-add',
-                width: 600,
-                height: 400,
-                closed: false,
-                cache: false,
-                modal: true,
-                onClose: function ()
-                {
-                    $('#dg').datagrid("reload");
-                },
-                content: CreateIFame("/ActionInfo/Create")
-            });
+    function Create() {
+        $('#dlg').dialog('open').dialog('setTitle', '添加');
+        $('#fm').form('clear');
+        url = '/ActionInfo/Create';
     }
 
-    function Edit()
-    {
+    function Edit() {
         var row = $('#dg').datagrid('getSelected');
-        if (row)
+        if(row)
         {
-            $('#dialog').dialog(
-            {
-                title: '编辑',
-                iconCls: 'icon-edit',
-                width: 600,
-                height: 400,
-                closed: false,
-                cache: false,
-                modal: true,
-                onClose: function ()
-                {
-                    $('#dg').datagrid("reload");
-                },
-                content: CreateIFame("/ActionInfo/Edit/" + row.Id)
+            $('#dlg').dialog('open').dialog('setTitle', '编辑');
+            $('#fm').form('load', row);
+            url = '/ActionInfo/Edit';
+        }
+    }
+
+    function Delete() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            $.messager.confirm('警告', '你确定要删除该记录吗？', function (r) {
+                if (r) {
+                    $.post('/ActionInfo/Delete', { id: row.Id }, function (result) {
+                        if (result.Success)
+                        {
+                            $('#dg').datagrid('reload');                            
+                        }
+                        else
+                        {
+                            $.messager.show({
+                                title: 'Error',
+                                msg: result.Message
+                            });
+                        }
+                    });
+                }
             });
         }
     }
 
-    function Delete()
-    {
-        var row = $('#dg').datagrid('getSelected');
-        if (row)
-        {
-            $.messager.confirm('警告', '确定要删除吗？', function (r)
-            {
-                $.post('/ActionInfo/Delete', { id: row.Id }, function (result)
+    function Save() {
+        $('#fm').form('submit', {
+            url: url,
+            onSubmit: function () {
+                var flag = $(this).form('validate');
+                if (flag) {
+                    ShowProcess(true, '温馨提示', '正在提交数据...');
+                }
+                return flag;
+            },
+            success: function (result) {
+                ShowProcess(false);
+                var result = eval('(' + result + ')');
+                if (result.Success)
                 {
-                    if (result.message)
-                    {
-                        $.messager.show({
-                            title: '提示',
-                            msg: result.message
-                        });
-                    }
-                    else
-                    {
-                        $('#dg').datagrid('reload');
-                    }
-                }, 'json');
-            });
-        }
+                    $('#dlg').dialog('close');
+                    $('#dg').datagrid('reload');                            
+                }
+                else
+                {
+                    $.messager.show({
+                        title: 'Error',
+                        msg: result.Message
+                    });
+                }               
+            },
+            onLoadError: function () {
+                ShowProcess(false);
+                $.messager.alert('温馨提示', '由于网络或服务器繁忙，提交失败，请重试!');
+            }
+        });
     }
-</script>
 
+</script>    
 }

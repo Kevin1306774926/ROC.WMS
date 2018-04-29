@@ -29,7 +29,7 @@ namespace ROC.Core
                         {
                             string controllerName = m.DeclaringType.Name.Substring(0, m.DeclaringType.Name.Length - 10);  // 去掉“Controller” 后缀
 
-                            if (!list.Any(t => t.ActionName == m.Name && t.ControllerName == controllerName))
+                            if (!list.Any(t => t.Action == m.Name && t.Controller == controllerName))
                             {
                                 var item = new ActionEntity();
                                 item.Action = m.Name;

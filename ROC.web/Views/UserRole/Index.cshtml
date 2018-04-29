@@ -1,0 +1,171 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<table id="dg"></table>
+<div id="dlg" class="easyui-dialog" style="width:600px;height:480px;padding:5px" closed="true" buttons="#dlg-buttons">
+    <div class="ftitle">@ViewBag.Title</div>
+    <form id="fm" method="post" nvalidate>
+         <input name="Id" hidden />
+        <div class="fitem">            
+            <label>UserId：</label><input name="UserId" class="easyui-textbox" required="true" />
+        </div>                
+
+        <div class="fitem">            
+            <label>RoleId：</label><input name="RoleId" class="easyui-textbox" required="true" />
+        </div>                
+
+        
+    </form>
+</div>
+<div id="dlg-buttons">
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="Save()" style="width:90px">保存</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width:90px">取消</a>
+</div>
+
+@section scripts{    
+<script type="text/javascript">
+    var url;
+
+    $(function () {
+        $('#dg').datagrid(
+        {
+            url: '/UserRole/List',
+            method: 'post',
+            singleSelect:true,
+            rownumbers: true,
+            pagination: true,
+            fit: true,
+            striped: true,
+            showFooter: true,
+            sortName: 'Id',
+            sortOrder: 'desc',
+            columns: [[
+                { title: 'Id', field: 'Id', width: 80, sortable: true,hidden:true},
+                { title: 'UserId', field: 'UserId', width: 120, sortable: true },
+                { title: 'Role', field: 'RoleId', width: 120, sortable: true, formatter: RoleFormatter },
+
+            ]],
+            toolbar: [
+            {
+                id: 'btnreload',
+                text: '刷新',
+                iconCls: 'icon-reload',
+                handler: function () {
+                    $('#dg').datagrid('reload');
+                }
+            },
+            {
+                id: 'btncreate',
+                text: '添加',
+                iconCls: 'icon-add',
+                handler: function () {
+                    $('#btnsave').linkbutton('enable');
+                    Create();
+                }
+            },
+                {
+                    id: 'btnedit',
+                    text: '修改',
+                    iconCls: 'icon-edit',
+                    handler: function () {
+                        $('#btnedit').linkbutton('enable');
+                        Edit();
+                    }
+                }, '-',
+                {
+                    id: 'btndetele',
+                    text: '删除',
+                    iconCls: 'icon-cancel',
+                    handler: function () {
+                        Delete();
+                    }
+                }
+            ]
+
+        });
+    });
+    function RoleFormatter(value,row) {
+        if (value) {
+            return value.Name;
+        }
+        else {
+            return '';
+        }
+    }
+    function Create() {
+        $('#dlg').dialog('open').dialog('setTitle', '添加');
+        $('#fm').form('clear');
+        url = '/UserRole/Create';
+    }
+
+    function Edit() {
+        var row = $('#dg').datagrid('getSelected');
+        if(row)
+        {
+            $('#dlg').dialog('open').dialog('setTitle', '编辑');
+            $('#fm').form('load', row);
+            url = '/UserRole/Edit';
+        }
+    }
+
+    function Delete() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            $.messager.confirm('警告', '你确定要删除该记录吗？', function (r) {
+                if (r) {
+                    $.post('/UserRole/Delete', { id: row.Id }, function (result) {
+                        result = eval('(' + result + ')');
+                        if (result.Success)
+                        {
+                            $('#dg').datagrid('reload');                            
+                        }
+                        else
+                        {
+                            $.messager.show({
+                                title: 'Error',
+                                msg: result.Message
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    function Save() {
+        $('#fm').form('submit', {
+            url: url,
+            onSubmit: function () {
+                var flag = $(this).form('validate');
+                if (flag) {
+                    ShowProcess(true, '温馨提示', '正在提交数据...');
+                }
+                return flag;
+            },
+            success: function (result) {
+                ShowProcess(false);
+                var result = eval('(' + result + ')');
+                if (result.Success)
+                {
+                    $('#dlg').dialog('close');
+                    $('#dg').datagrid('reload');                            
+                }
+                else
+                {
+                    $.messager.show({
+                        title: 'Error',
+                        msg: result.Message
+                    });
+                }               
+            },
+            onLoadError: function () {
+                ShowProcess(false);
+                $.messager.alert('温馨提示', '由于网络或服务器繁忙，提交失败，请重试!');
+            }
+        });
+    }
+
+</script>    
+}

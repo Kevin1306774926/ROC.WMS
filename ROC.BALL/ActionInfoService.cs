@@ -10,7 +10,7 @@ namespace ROC.BLL
 {
     public partial interface IActionInfoService
     {
-        void InitActionsByAssembly();
+        void InitActionsByAssembly();        
     }
     public partial class ActionInfoService
     {
@@ -33,7 +33,9 @@ namespace ROC.BLL
                 actions.Add(a);
             }
 
+            this.Delete(t => true);
             this.Add(actions.ToArray());
         }
+
     }
 }

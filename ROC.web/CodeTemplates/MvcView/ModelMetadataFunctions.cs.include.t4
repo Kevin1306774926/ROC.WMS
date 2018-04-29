@@ -40,4 +40,13 @@ string GetPrimaryKeyName() {
 bool IsPropertyGuid(PropertyMetadata property) {
     return String.Equals("System.Guid", property.TypeName, StringComparison.OrdinalIgnoreCase);
 }
+
+bool IsPropertyDateTime(PropertyMetadata property) {
+    return String.Equals("System.DateTime?", property.ShortTypeName, StringComparison.OrdinalIgnoreCase)||String.Equals("System.DateTime", property.ShortTypeName, StringComparison.OrdinalIgnoreCase);
+}
+
+bool IsPropertyBoolean(PropertyMetadata property) {
+    return String.Equals("bool", property.ShortTypeName, StringComparison.OrdinalIgnoreCase)||String.Equals("bool?", property.ShortTypeName, StringComparison.OrdinalIgnoreCase);
+}
+    
 #>

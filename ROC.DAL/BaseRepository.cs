@@ -30,6 +30,20 @@ namespace ROC.DAL
             return result;
         }
 
+        public virtual IQueryable<T> Get(Expression<Func<T, bool>> whereLambda,string include)
+        {
+            IQueryable<T> result=null;
+            if (whereLambda==null)
+            {
+                result = db.Set<T>().Include(include);
+            }
+            else
+            {
+                result = db.Set<T>().Where(whereLambda).Include(include);
+            }            
+            return result;
+        }
+
         //分页查询
         public virtual IQueryable<T> Get<S>(
             Expression<Func<T, bool>> whereLambada,
@@ -182,6 +196,11 @@ namespace ROC.DAL
             LambdaExpression keySelector = Expression.Lambda(body, param);
             Cache[propertyName] = keySelector;
             return keySelector;
+        }
+
+        public int ExecuteSqlCommand(string sql,params object[] parameters)
+        {
+            return db.Database.ExecuteSqlCommand(sql, parameters);
         }
     }
 }

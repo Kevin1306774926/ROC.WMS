@@ -3,19 +3,43 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using ROC.BLL;
 using ROC.Modles;
+using ROC.Service;
+using System.Web.Script.Serialization;
 
 namespace ROC.web.Controllers
 {
     public class ActionInfoController : BaseController
     {
-        IActionInfoService service = new ActionInfoService();
+        IActionInfoService  service=new ActionInfoService();
         // GET: ActionInfo
         public ActionResult Index()
         {
             return View();
         }
+
+        [HttpPost]
+        public ActionResult Get()
+        {
+            try
+            {
+                string controller = Request["Id"];
+                if (!string.IsNullOrEmpty(controller))
+                {
+                    var data = service.Get(t => t.Controller == controller).OrderBy(t => t.Action).ToList();
+                    this.Total = data.Count();
+                    this.Rows = data;
+                    this.Data = DataGridResult;
+                }
+            }
+            catch(Exception ex)
+            {
+                Success = false;
+                Message = ex.Message;
+            }
+            return EasyUIResult();
+        }
+
         public ActionResult List()
         {
             int pageIndex = Request["page"] == null ? 1 : int.Parse(Request["page"]);
@@ -25,37 +49,23 @@ namespace ROC.web.Controllers
             bool IsAsc = sortOrder == null ? true : sortOrder.ToUpper().Equals("ASC");
             int total = 0;
 
-            var data = service.Get(t => true, sortName, pageSize, pageIndex, out total, IsAsc);            
+            var data = service.Get(t => true, sortName, pageSize, pageIndex, out total, IsAsc);
             var result = new { total = total, rows = data };
             return Json(result, JsonRequestBehavior.AllowGet);
         }
-
-        /// <summary>
-        /// 初始化系统中的所有控制器中的Action 名称
-        /// </summary>
-        /// <returns></returns>
         public ActionResult InitActions()
         {
             try
             {
                 service.InitActionsByAssembly();
-                return Json(new { Message = "", Success = true });
+                
             }
             catch (Exception ex)
             {
-                return Json(new { Message = ex.Message, Success = false });
+                Success = false;
+                Message = ex.Message;
             }
-        }
-        // GET: ActionInfo/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
-        // GET: ActionInfo/Create
-        public ActionResult Create()
-        {
-            return View();
+            return EasyUIResult();
         }
 
         // POST: ActionInfo/Create
@@ -64,59 +74,69 @@ namespace ROC.web.Controllers
         {
             try
             {
-                // TODO: Add insert logic here
                 service.Add(model);
-                return RedirectToAction("Close");
             }
-            catch
+             catch(Exception ex)
             {
-                return View();
+                //return View();
+                Success = false;
+                Message = ex.Message;
             }
-        }
-
-        // GET: ActionInfo/Edit/5
-        public ActionResult Edit(int id)
-        {
-            var model = service.Get(id);
-            return View(model);
+            return EasyUIResult();
         }
 
         // POST: ActionInfo/Edit/5
         [HttpPost]
-        public ActionResult Edit(int id, ActionInfo model)
+        public ActionResult Edit(ActionInfo model)
         {
             try
             {
-                // TODO: Add update logic here
                 service.Update(model);
-                return RedirectToAction("Close");
             }
-            catch
+            catch(Exception ex)
             {
-                return View();
+                Success = false;
+                Message = ex.Message;
             }
-        }
-
-        // GET: ActionInfo/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
+            return EasyUIResult();
         }
 
         // POST: ActionInfo/Delete/5
         [HttpPost]
-        public ActionResult Delete(int id, FormCollection collection)
+        public ActionResult Delete(Guid id, FormCollection collection)
         {
             try
             {
-                // TODO: Add delete logic here
-                service.Delete(t=>t.Id==id);
-                return Json(new { Message = "",Success=true });
+                service.Delete(t => t.Id== id);                
+            }
+            catch (Exception ex)
+            {
+                Success = false;
+                Message = ex.Message;                
+            }
+            return EasyUIResult();
+        }
+
+        [HttpPost]
+        public ActionResult AcceptChange()
+        {
+            string msg = string.Empty;
+            try
+            {
+                string update = Request["update"];
+                if(string.IsNullOrEmpty(update))
+                {
+                    JavaScriptSerializer js = new JavaScriptSerializer();
+                    List<ActionInfo> list = js.Deserialize<List<ActionInfo>>(update);
+                    service.Update(list.ToArray());
+                }
             }
             catch(Exception ex)
             {
-                return Json(new { Message =ex.Message, Success=false });
+                Success = false;
+                Message = ex.Message;
             }
+            return EasyUIResult();
         }
     }
 }

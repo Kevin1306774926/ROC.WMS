@@ -9,7 +9,7 @@
 // The following connection settings were used to generate this file:
 //     Configuration file:     "ROC.web\Web.config"
 //     Connection String Name: "RocContext"
-//     Connection String:      "Data Source=(local);Initial Catalog=roc_wms;Integrated Security=True;Application Name=MyApp"
+//     Connection String:      "Data Source=(local);Initial Catalog=roc_wms;user=sa;password=**zapped**;;Application Name=MyApp;MultipleActiveResultSets=True"
 // ------------------------------------------------------------------------------------------------
 // Database Edition       : Express Edition
 // Database Engine Edition: Express
@@ -23,7 +23,22 @@ namespace ROC.BLL
     public partial interface IActionInfoService:IBaseService<ActionInfo>
     {
     }
+    public partial interface IMenuService:IBaseService<Menu>
+    {
+    }
     public partial interface IMenuClassService:IBaseService<MenuClass>
+    {
+    }
+    public partial interface IRoleService:IBaseService<Role>
+    {
+    }
+    public partial interface IRoleActionInfoService:IBaseService<RoleActionInfo>
+    {
+    }
+    public partial interface IUserService:IBaseService<User>
+    {
+    }
+    public partial interface IUserRoleService:IBaseService<UserRole>
     {
     }
     #endregion  
@@ -38,11 +53,56 @@ namespace ROC.BLL
             return true;
         }
     }
+    public partial class MenuService:BaseService<Menu>,IMenuService
+    {
+        public override bool SetCurrentRepository()
+        {
+            this.CurrentRepository = DbSessionContext.MenuRepository;
+            this.AddDisposableObject(this.CurrentRepository);
+            return true;
+        }
+    }
     public partial class MenuClassService:BaseService<MenuClass>,IMenuClassService
     {
         public override bool SetCurrentRepository()
         {
             this.CurrentRepository = DbSessionContext.MenuClassRepository;
+            this.AddDisposableObject(this.CurrentRepository);
+            return true;
+        }
+    }
+    public partial class RoleService:BaseService<Role>,IRoleService
+    {
+        public override bool SetCurrentRepository()
+        {
+            this.CurrentRepository = DbSessionContext.RoleRepository;
+            this.AddDisposableObject(this.CurrentRepository);
+            return true;
+        }
+    }
+    public partial class RoleActionInfoService:BaseService<RoleActionInfo>,IRoleActionInfoService
+    {
+        public override bool SetCurrentRepository()
+        {
+            this.CurrentRepository = DbSessionContext.RoleActionInfoRepository;
+            this.AddDisposableObject(this.CurrentRepository);
+            return true;
+        }
+    }
+    public partial class UserService:BaseService<User>,IUserService
+    {
+        public override bool SetCurrentRepository()
+        {
+            this.CurrentRepository = DbSessionContext.UserRepository;
+            this.AddDisposableObject(this.CurrentRepository);
+            return true;
+        }
+    }
+    public partial class UserRoleService:BaseService<UserRole>,IUserRoleService
+    {
+        public override bool SetCurrentRepository()
+        {
+            this.CurrentRepository = DbSessionContext.UserRoleRepository;
             this.AddDisposableObject(this.CurrentRepository);
             return true;
         }

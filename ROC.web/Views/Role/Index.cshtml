@@ -1,0 +1,289 @@
+﻿
+@{
+    ViewBag.Title = "角色权限管理";
+}
+<div class="easyui-layout" data-options="fit:true">
+    <div data-options="region:'west',title:'角色',split:true" style="width:300px;padding:1px;">
+        <table id="dg"></table>
+        <div id="dlg" class="easyui-dialog" style="width:400px;height:380px;padding:5px" closed="true" buttons="#dlg-buttons" data-options="modal:true">
+            <div class="ftitle">@ViewBag.Title</div>
+            <form id="fm" method="post" nvalidate>
+                <input name="Id" hidden />
+                <div class="fitem">
+                    <label>名称：</label><input name="Name" class="easyui-textbox" required="true" />
+                </div>
+
+                <div class="fitem">
+                    <label>描述：</label><input name="Description" class="easyui-textbox" required="true" />
+                </div>
+            </form>
+        </div>
+        <div id="dlg-buttons">
+            <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="Save()" style="width:90px">保存</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width:90px">取消</a>
+        </div>
+    </div>
+    <div data-options="region:'center'">
+        <table id="permission"></table>
+    </div>
+</div>
+
+@section scripts{    
+<script type="text/javascript">
+    var url;
+    $(function () {
+        $('#dg').datagrid(
+        {
+            url: '/role/list',
+            method: 'post',
+            rownumbers: true,
+            pagination: false,
+            singleSelect: true,
+            fit: true,
+            striped: true,
+            showFooter: false,
+            sortName: 'Id',
+            sortOrder: 'desc',
+            columns: [[
+                { title: 'Id', field: 'Id', width: 80, sortable: true,hidden:true},
+                { title: '名称', field: 'Name', width: 120, sortable: true },
+                //{ title: '描述', field: 'Description', width: 120, sortable: true },
+                //{ title: '操作员', field: 'Opration', width: 120, sortable: true },
+                //{ title: '时间', field: 'OpTime', width: 150, sortable: true, formatter:DateTimeFormatter},                
+            ]],
+            onClickRow:function(index,row){
+                SelectRolePermission(row);
+            },
+            toolbar: [
+            {
+                id: 'btnreload',
+                text: '刷新',
+                iconCls: 'icon-reload',
+                handler: function () {
+                    $('#dg').datagrid('reload');
+                }
+            },
+            {
+                id: 'btncreate',
+                text: '添加',
+                iconCls: 'icon-add',
+                handler: function () {
+                    $('#btnsave').linkbutton('enable');
+                    Create();
+                }
+            },
+                {
+                    id: 'btnedit',
+                    text: '修改',
+                    iconCls: 'icon-edit',
+                    handler: function () {
+                        $('#btnedit').linkbutton('enable');
+                        Edit();
+                    }
+                }, '-',
+                {
+                    id: 'btndetele',
+                    text: '删除',
+                    iconCls: 'icon-cancel',
+                    handler: function () {
+                        Delete();
+                    }
+                }, '-',
+                {
+                    id: 'btnInitRolePermission',
+                    text: '加载',
+                    iconCls: 'icon-tip',
+                    handler: function () {
+                        InitRolePermission();
+                    }
+                }
+            ]
+
+        });
+    });
+
+    function InitRolePermission() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            $.post('/role/InitRolePermission', { roleId: row.Id }, function (result) {
+                result = eval('(' + result + ')');
+                if (result.Success) {
+                    $.messager.show({
+                        title: '提示',
+                        msg: '更新成功'
+                    });
+                }
+                else {
+                    $.messager.show({
+                        title: '提示',
+                        msg: result.Message
+                    });
+                }
+            });
+        }
+    }
+
+    function Create() {
+        $('#dlg').dialog('open').dialog('setTitle', '添加');
+        $('#fm').form('clear');
+        url = '/role/Create';
+    }
+
+    function Edit() {
+        var row = $('#dg').datagrid('getSelected');
+        if(row)
+        {
+            $('#dlg').dialog('open').dialog('setTitle', '编辑');
+            $('#fm').form('load', row);
+            url = '/role/Edit';
+        }
+    }
+
+    function Delete() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            $.messager.confirm('警告', '你确定要删除该记录吗？', function (r) {
+                if (r) {
+                    $.post('/role/Delete', { id: row.Id }, function (result) {
+                        var result = eval('(' + result + ')');
+                        if (result.Success) {
+                            $('#dg').datagrid('reload');
+                        }
+                        else {
+                            $.messager.show({
+                                title: 'Error',
+                                msg: result.Message
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    function Save() {
+        $('#fm').form('submit', {
+            url: url,
+            onSubmit: function () {
+                var flag = $(this).form('validate');
+                if (flag) {
+                    ShowProcess(true, '温馨提示', '正在提交数据...');
+                }
+                return flag;
+            },
+            success: function (result) {
+                ShowProcess(false);
+                var result = eval('(' + result + ')');
+                if (result.Success)
+                {
+                    $('#dlg').dialog('close');
+                    $('#dg').datagrid('reload');                           
+                }
+                else
+                {
+                    $.messager.show({
+                        title: 'Error',
+                        msg: result.Message
+                    });
+                }
+            },
+            onLoadError: function () {
+                ShowProcess(false);
+                $.messager.alert('温馨提示', '由于网络或服务器繁忙，提交失败，请重试!');
+            }
+        });
+    }
+
+    $(function () {
+        $('#permission').datagrid(
+        {                        
+            rownumbers: true,
+            pagination: false,
+            fit: true,
+            striped: true,
+            showFooter: false,
+            sortName: 'Id',
+            sortOrder: 'desc',
+            checkOnSelect: false,
+            selectOnCheck:false,
+            columns: [[                
+                { title: 'Id', field: 'Id', width: 80, sortable: true },
+                { title: '控制器', field: 'ControllerName', width: 120, sortable: true },
+                { title: '功能', field: 'ActionName', width: 120, sortable: true },
+                { title: '是否启用', field: 'ck', checkbox: true },
+                //{ title: '是否启用', field: 'IsUsed', width: 120, sortable: true },
+                { title: '描述', field: 'Description', width: 300, sortable: true },
+                
+            ]],
+            onLoadSuccess:function(data){
+                if (data) {
+                    $.each(data.rows, function (index, item) {
+                        if (item.IsUsed) {
+                            $('#permission').datagrid('checkRow', index);
+                        }
+                    });
+                }
+            },
+            onCheck:function(index,row){
+                if (row) {
+                    row.IsUsed = !row.IsUsed;
+                }
+            },
+            toolbar: [
+                {
+                    id: 'btnsave',
+                    text: '保存',
+                    iconCls: 'icon-edit',
+                    handler: function () {                        
+                        Save();
+                    }
+                }
+            ]
+        });
+    });
+
+    function Save() {
+        var roleId;
+        var checkedItems = $('#permission').datagrid('getChecked');
+        var names = [];
+        $.each(checkedItems, function (index, item) {
+            names.push(item.ActionId);
+            roleId=item.RoleId;
+        });
+        var ids =names.join(",");
+        $.post('/role/UpdateRolePermission/', { id:ids, roleId: roleId }, function (result) {
+            result = eval('(' + result + ')');
+            if (result.Success) {
+                $.messager.show({
+                    title: '提示',
+                    msg:'保存成功'
+                });
+            }
+            else {
+                $.messager.show({
+                    title: '提示',
+                    msg: result.Message
+                });
+            }
+        });
+    }
+    function SelectRolePermission(row)
+    {
+        if (row) {
+            $.post('/role/GetRolePermission', { roleId: row.Id }, function (result) {
+                result = eval('(' + result + ')');
+                if (result.Success) {
+                    $('#permission').datagrid('loadData', result.Data);
+                }
+                else {
+                    $.messager.show({
+                        title: '提示',
+                        msg: result.Message
+                    });
+                }
+            });
+        }
+    }
+
+</script>    
+}

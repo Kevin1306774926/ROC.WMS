@@ -16,6 +16,8 @@ namespace ROC.DAL
                 db = new RocContext();
                 CallContext.SetData(typeof(RocContext).FullName, db);
             }
+            db.Configuration.ProxyCreationEnabled = false;
+            db.Configuration.LazyLoadingEnabled = false;
             return db;
         }
     }

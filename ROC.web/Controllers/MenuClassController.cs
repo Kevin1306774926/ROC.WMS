@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using ROC.Modles;
-using ROC.BLL;
+using ROC.Service;
 
 namespace ROC.web.Controllers
 {
@@ -21,6 +21,13 @@ namespace ROC.web.Controllers
             var menuTree = service.GetMenuTree();
             return Json(menuTree, JsonRequestBehavior.AllowGet);
         }
+
+        public ActionResult MenuClassTree()
+        {
+            var menuTree = service.GetMenuClassTree();
+            return Json(menuTree, JsonRequestBehavior.AllowGet);
+        }
+
         // GET: MenuClass
         public ActionResult Index()
         {
@@ -39,20 +46,7 @@ namespace ROC.web.Controllers
             var data = service.Get(t => true, sortName, pageSize, pageIndex, out total, IsAsc);
             var result = new { total = total, rows = data };
             return Json(result, JsonRequestBehavior.AllowGet);
-        }
-
-
-        // GET: MenuClass/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
-        // GET: MenuClass/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
+        }        
 
         // POST: MenuClass/Create
         [HttpPost]
@@ -60,21 +54,14 @@ namespace ROC.web.Controllers
         {
             try
             {
-                // TODO: Add insert logic here
                 service.Add(model);
-                return RedirectToAction("Close");
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                Success = false;
+                Message = ex.Message;
             }
-        }
-
-        // GET: MenuClass/Edit/5
-        public ActionResult Edit(string id)
-        {
-            var model = service.Get(id);
-            return View(model);
+            return EasyUIResult();
         }
 
         // POST: MenuClass/Edit/5
@@ -84,34 +71,29 @@ namespace ROC.web.Controllers
             try
             {
                 service.Update(model);
-
-                return RedirectToAction("Close");
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                Success = false;
+                Message = ex.Message;
             }
-        }
-
-        // GET: MenuClass/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
+            return EasyUIResult();
         }
 
         // POST: MenuClass/Delete/5
         [HttpPost]
-        public ActionResult Delete(string id, FormCollection collection)
+        public ActionResult Delete(int id, FormCollection collection)
         {
             try
             {
-                service.Delete(t => t.Code == id);
-                return Json(new { Message = "", Success = true });
+                service.Delete(t => t.Id == id);
             }
             catch (Exception ex)
             {
-                return Json(new { Message = ex.Message, Success = false });
+                Success = false;
+                Message = ex.Message;
             }
+            return EasyUIResult();
         }
     }
 }

@@ -1,0 +1,165 @@
+﻿
+@{
+    ViewBag.Title = "用户列表";
+}
+
+<table id="dg"></table>
+<div id="dlg" class="easyui-dialog" style="width:600px;height:480px;padding:5px" closed="true" buttons="#dlg-buttons">
+    <div class="ftitle">@ViewBag.Title</div>
+    <form id="fm" method="post" nvalidate>
+        <div class="fitem">
+            <input name="Id" type="hidden" />
+            <label>编号：</label><input name="Code" class="easyui-textbox" required="true" />
+        </div>
+        <div class="fitem">
+            <label>名称：</label><input name="Name" class="easyui-textbox" required="true" />
+        </div>
+        <div class="fitem">
+            <label>密码：</label><input name="Password" class="easyui-textbox" type="password" required="true" />
+        </div>               
+        <div class="fitem">
+            <label>是否启用：</label>
+            <select class="easyui-combobox" name="IsStop">
+                <option value="true">启用</option>
+                <option value="false">停用</option>
+            </select>
+        </div>
+    </form>
+</div>
+<div id="dlg-buttons">
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="Save()" style="width:90px">保存</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width:90px">取消</a>
+</div>
+
+@section scripts{    
+<script type="text/javascript">
+    var url;
+
+    $(function () {
+        $('#dg').datagrid(
+        {
+            url: '/User/List',
+            method: 'post',
+            rownumbers: true,
+            pagination: true,
+            fit: true,
+            striped: true,
+            showFooter: true,
+            sortName: 'Code',
+            sortOrder: 'desc',
+            columns: [[
+                { title: '编号', field: 'Code', width: 80, sortable: true },
+                { title: '名称', field: 'Name', width: 120, sortable: true },                                
+                {
+                    title: '是否停用', field: 'IsStop', width: 100, align: 'center',
+                    formatter: function (val, row) {
+                        return val == true ? '<input name="user_list" type="checkbox" checked="true" disabled="true"/>' : '<input name="user_list" type="checkbox" disabled="true"/>';
+                    }
+                },
+                { title: '操作人', field: 'Operator', width: 120, sortable: true },
+                { title: '操作时间', field: 'OpTime', width: 120, sortable: true },
+            ]],
+            toolbar: [
+            {
+                id: 'btnreload',
+                text: '刷新',
+                iconCls: 'icon-reload',
+                handler: function () {
+                    $('#dg').datagrid('reload');
+                }
+            },
+            {
+                id: 'btncreate',
+                text: '添加',
+                iconCls: 'icon-add',
+                handler: function () {
+                    $('#btnsave').linkbutton('enable');
+                    Create();
+                }
+            },
+                {
+                    id: 'btnedit',
+                    text: '修改',
+                    iconCls: 'icon-edit',
+                    handler: function () {
+                        $('#btnedit').linkbutton('enable');
+                        Edit();
+                    }
+                }, '-',
+                {
+                    id: 'btndetele',
+                    text: '删除',
+                    iconCls: 'icon-cancel',
+                    handler: function () {
+                        Delete();
+                    }
+                }
+            ]
+
+        });
+    });
+
+    function Create() {
+        $('#dlg').dialog('open').dialog('setTitle', '添加');
+        $('#fm').form('clear');
+        url = '/User/Create';
+    }
+
+    function Edit() {
+        var row = $('#dg').datagrid('getSelected');
+        if(row)
+        {
+            $('#dlg').dialog('open').dialog('setTitle', '编辑');
+            $('#fm').form('load', row);
+            url = '/User/Edit';
+        }
+    }
+
+    function Delete() {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            $.messager.confirm('警告', '你确定要删除该记录吗？', function (r) {
+                if (r) {
+                    $.post('/User/Delete', { id: row.Id }, function (result) {
+
+                        if (result.Msg)
+                        {
+                            $.messager.show({
+                                title: 'Error',
+                                msg: result.Msg
+                            });
+                        }
+                        else
+                        {
+                            $('#dg').datagrid('reload');
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    function Save() {
+        $('#fm').form('submit', {
+            url: url,
+            onSubmit: function () {
+                return $(this).form('validate');
+            },
+            success: function (result) {
+                var result = eval('(' + result + ')');
+                if (result.Msg) {
+                    $.messager.show({
+                        title: 'Error',
+                        msg: result.Msg
+                    });
+                }
+                else {
+                    $('#dlg').dialog('close');
+                    $('#dg').datagrid('reload');
+                }
+            }
+        });
+    }
+
+</script>    
+}

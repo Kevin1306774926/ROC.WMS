@@ -9,7 +9,7 @@
 // The following connection settings were used to generate this file:
 //     Configuration file:     "ROC.web\Web.config"
 //     Connection String Name: "RocContext"
-//     Connection String:      "Data Source=(local);Initial Catalog=roc_wms;Integrated Security=True;Application Name=MyApp"
+//     Connection String:      "Data Source=(local);Initial Catalog=roc_wms;user=sa;password=**zapped**;;Application Name=MyApp;MultipleActiveResultSets=True"
 // ------------------------------------------------------------------------------------------------
 // Database Edition       : Express Edition
 // Database Engine Edition: Express
@@ -24,7 +24,22 @@ namespace ROC.DAL
     public partial interface IActionInfoRepository:IBaseRepository<ActionInfo>
     {
     }
+    public partial interface IMenuRepository:IBaseRepository<Menu>
+    {
+    }
     public partial interface IMenuClassRepository:IBaseRepository<MenuClass>
+    {
+    }
+    public partial interface IRoleRepository:IBaseRepository<Role>
+    {
+    }
+    public partial interface IRoleActionInfoRepository:IBaseRepository<RoleActionInfo>
+    {
+    }
+    public partial interface IUserRepository:IBaseRepository<User>
+    {
+    }
+    public partial interface IUserRoleRepository:IBaseRepository<UserRole>
     {
     }
     #endregion   
@@ -33,7 +48,22 @@ namespace ROC.DAL
     public partial class ActionInfoRepository:BaseRepository<ActionInfo>,IActionInfoRepository
     {
     }
+    public partial class MenuRepository:BaseRepository<Menu>,IMenuRepository
+    {
+    }
     public partial class MenuClassRepository:BaseRepository<MenuClass>,IMenuClassRepository
+    {
+    }
+    public partial class RoleRepository:BaseRepository<Role>,IRoleRepository
+    {
+    }
+    public partial class RoleActionInfoRepository:BaseRepository<RoleActionInfo>,IRoleActionInfoRepository
+    {
+    }
+    public partial class UserRepository:BaseRepository<User>,IUserRepository
+    {
+    }
+    public partial class UserRoleRepository:BaseRepository<UserRole>,IUserRoleRepository
     {
     }
     #endregion
@@ -43,7 +73,17 @@ namespace ROC.DAL
         
             IActionInfoRepository ActionInfoRepository { get; set; }
         
+            IMenuRepository MenuRepository { get; set; }
+        
             IMenuClassRepository MenuClassRepository { get; set; }
+        
+            IRoleRepository RoleRepository { get; set; }
+        
+            IRoleActionInfoRepository RoleActionInfoRepository { get; set; }
+        
+            IUserRepository UserRepository { get; set; }
+        
+            IUserRoleRepository UserRoleRepository { get; set; }
     
             /// <summary>
             /// 保存所有改变
@@ -80,6 +120,23 @@ namespace ROC.DAL
                 }
             }
         
+            private IMenuRepository _MenuRepository;
+            public IMenuRepository MenuRepository
+            {
+                get
+                {
+                    if (_MenuRepository == null)
+                    {
+                        _MenuRepository = new MenuRepository();
+                    }
+                    return _MenuRepository;
+                }
+                set
+                {
+                    _MenuRepository = value;
+                }
+            }
+        
             private IMenuClassRepository _MenuClassRepository;
             public IMenuClassRepository MenuClassRepository
             {
@@ -94,6 +151,74 @@ namespace ROC.DAL
                 set
                 {
                     _MenuClassRepository = value;
+                }
+            }
+        
+            private IRoleRepository _RoleRepository;
+            public IRoleRepository RoleRepository
+            {
+                get
+                {
+                    if (_RoleRepository == null)
+                    {
+                        _RoleRepository = new RoleRepository();
+                    }
+                    return _RoleRepository;
+                }
+                set
+                {
+                    _RoleRepository = value;
+                }
+            }
+        
+            private IRoleActionInfoRepository _RoleActionInfoRepository;
+            public IRoleActionInfoRepository RoleActionInfoRepository
+            {
+                get
+                {
+                    if (_RoleActionInfoRepository == null)
+                    {
+                        _RoleActionInfoRepository = new RoleActionInfoRepository();
+                    }
+                    return _RoleActionInfoRepository;
+                }
+                set
+                {
+                    _RoleActionInfoRepository = value;
+                }
+            }
+        
+            private IUserRepository _UserRepository;
+            public IUserRepository UserRepository
+            {
+                get
+                {
+                    if (_UserRepository == null)
+                    {
+                        _UserRepository = new UserRepository();
+                    }
+                    return _UserRepository;
+                }
+                set
+                {
+                    _UserRepository = value;
+                }
+            }
+        
+            private IUserRoleRepository _UserRoleRepository;
+            public IUserRoleRepository UserRoleRepository
+            {
+                get
+                {
+                    if (_UserRoleRepository == null)
+                    {
+                        _UserRoleRepository = new UserRoleRepository();
+                    }
+                    return _UserRoleRepository;
+                }
+                set
+                {
+                    _UserRoleRepository = value;
                 }
             }
     

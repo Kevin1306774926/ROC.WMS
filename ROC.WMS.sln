@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ROC.BLL", "ROC.BALL\ROC.BLL
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ROC.Core", "ROC.Core\ROC.Core.csproj", "{4F4B7A4B-BDBD-44F5-BFF5-BC617AE19CCD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ROC.Service", "ROC.Service\ROC.Service.csproj", "{C48B5368-EB53-40B7-BD4C-8F684EE9F413}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{4F4B7A4B-BDBD-44F5-BFF5-BC617AE19CCD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F4B7A4B-BDBD-44F5-BFF5-BC617AE19CCD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F4B7A4B-BDBD-44F5-BFF5-BC617AE19CCD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C48B5368-EB53-40B7-BD4C-8F684EE9F413}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C48B5368-EB53-40B7-BD4C-8F684EE9F413}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C48B5368-EB53-40B7-BD4C-8F684EE9F413}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C48B5368-EB53-40B7-BD4C-8F684EE9F413}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

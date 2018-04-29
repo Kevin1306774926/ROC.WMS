@@ -63,6 +63,10 @@ namespace ROC.BLL
         {
             return this.CurrentRepository.Get(whereLambda);
         }
+        public virtual IQueryable<T> Get(Expression<Func<T, bool>> whereLambda, string include)
+        {
+            return this.CurrentRepository.Get(whereLambda,include);
+        }
 
         public IQueryable<T> Get<S>(
             Expression<Func<T, bool>> whereLambada,
@@ -169,6 +173,11 @@ namespace ROC.BLL
                     obj.Dispose();
                 }
             }
+        }
+
+        public int ExecuteSqlCommand(string sql, params object[] parameters)
+        {
+            return this.CurrentRepository.ExecuteSqlCommand(sql, parameters);
         }
     }
 }

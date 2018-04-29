@@ -1,0 +1,174 @@
+﻿@{
+    ViewBag.Title = "动作列表";
+}
+<table id="dg"></table>
+<div id="dialog" style="overflow:hidden"></div>
+
+
+@section scripts{    
+<script type="text/javascript">
+    $(function ()
+    {
+        InitDataGrid();
+    });
+
+    function InitDataGrid()
+    {
+        $('#dg').datagrid(
+        {
+            url: '/ActionInfo/List',
+            method: 'post',            
+            rownumbers: true,
+            pagination: true,
+            fit: true,
+            striped: true,
+            showFooter: true,
+            sortName: 'Id',
+            sortOrder: 'desc',
+            columns: [[
+                { field: 'CK', checkbox: true },
+                { title: 'ID', field: 'Id', width: 80, sortable: true },
+                { title: '动作', field: 'Action', width: 120, sortable: true },
+                { title: '动作名称', field: 'ActionName', width: 120, sortable: true },
+                { title: '控制器', field: 'Controller', width: 120, sortable: true },
+                { title: '控制器名称', field: 'ControllerName', width: 120, sortable: true },
+                { title: '描述', field: 'Description', width: 300, sortable: true },
+                { title: '时间', field: 'OpTime', width: 150, sortable: true, formatter: DateTimeFormatter}
+                ]],
+            toolbar: [
+                {
+                    id: 'btnload',
+                    text: '重新加载',
+                    iconCls: 'icon-reload',
+                    handler: function () {
+                        InitActions();
+                    }
+                },
+            {
+                id: 'btnreload',
+                text: '刷新',
+                iconCls: 'icon-reload',
+                handler: function ()
+                {
+                    $('#dg').datagrid('reload');
+                }
+            },
+            {
+                id: 'btnadd',
+                text: '添加',
+                iconCls: 'icon-add',
+                handler: function ()
+                {
+                    $('#btnsave').linkbutton('enable');
+                    Add();
+
+                }
+            },
+                {
+                    id: 'btnedit',
+                    text: '修改',
+                    iconCls: 'icon-edit',
+                    handler: function ()
+                    {
+                        $('#btnedit').linkbutton('enable');
+                        Edit();
+                    }
+                }, '-',
+                {
+                    id: 'btndetele',
+                    text: '删除',
+                    iconCls: 'icon-cancel',
+                    handler: function ()
+                    {
+                        Delete();
+                    }
+                }
+            ]
+
+        });
+    }
+
+    function InitActions()
+    {
+        $.post('/ActionInfo/InitActions', null, function (result) {
+            if (result.message) {
+                $.messager.show({
+                    title: '提示',
+                    msg: result.message
+                });
+            }
+            else {
+                $('#dg').datagrid('reload');
+            }
+        });
+    }
+
+    function Add()
+    {
+        $('#dialog').dialog(
+            {
+                title: '添加',
+                iconCls: 'icon-add',
+                width: 600,
+                height: 400,
+                closed: false,
+                cache: false,
+                modal: true,
+                onClose: function ()
+                {
+                    $('#dg').datagrid("reload");
+                },
+                content: CreateIFame("/ActionInfo/Create")
+            });
+    }
+
+    function Edit()
+    {
+        var row = $('#dg').datagrid('getSelected');
+        if (row)
+        {
+            $('#dialog').dialog(
+            {
+                title: '编辑',
+                iconCls: 'icon-edit',
+                width: 600,
+                height: 400,
+                closed: false,
+                cache: false,
+                modal: true,
+                onClose: function ()
+                {
+                    $('#dg').datagrid("reload");
+                },
+                content: CreateIFame("/ActionInfo/Edit/" + row.Id)
+            });
+        }
+    }
+
+    function Delete()
+    {
+        var row = $('#dg').datagrid('getSelected');
+        if (row)
+        {
+            $.messager.confirm('警告', '确定要删除吗？', function (r)
+            {
+                $.post('/ActionInfo/Delete', { id: row.Id }, function (result)
+                {
+                    if (result.message)
+                    {
+                        $.messager.show({
+                            title: '提示',
+                            msg: result.message
+                        });
+                    }
+                    else
+                    {
+                        $('#dg').datagrid('reload');
+                    }
+                }, 'json');
+            });
+        }
+    }
+</script>
+
+}

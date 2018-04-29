@@ -15,6 +15,7 @@ namespace ROC.DAL
         /// <param name="whereLambda"></param>
         /// <returns></returns>
         IQueryable<T> Get(Expression<Func<T, bool>> whereLambda);
+        IQueryable<T> Get(Expression<Func<T, bool>> whereLambda, string include);
         /// <summary>
         /// 分页查询
         /// </summary>
@@ -72,5 +73,6 @@ namespace ROC.DAL
         /// <param name="entities"></param>
         /// <returns></returns>
         int Update(params T[] entities);
+        int ExecuteSqlCommand(string sql, params object[] parameters);
     }
 }
