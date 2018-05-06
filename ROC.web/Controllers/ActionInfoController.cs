@@ -29,7 +29,7 @@ namespace ROC.web.Controllers
                     var data = service.Get(t => t.Controller == controller).OrderBy(t => t.Action).ToList();
                     this.Total = data.Count();
                     this.Rows = data;
-                    this.Data = DataGridResult;
+                    this.Data = DataGridData;
                 }
             }
             catch(Exception ex)

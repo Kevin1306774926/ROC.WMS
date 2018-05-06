@@ -20,16 +20,17 @@ namespace ROC.web.Controllers
 
         public ActionResult List()
         {
-            int pageIndex = Request["page"] == null ? 1 : int.Parse(Request["page"]);
-            int pageSize = Request["rows"] == null ? 1 : int.Parse(Request["rows"]);
-            string sortName = Request["sort"];
-            string sortOrder = Request["order"];
-            bool IsAsc = sortOrder == null ? true : sortOrder.ToUpper().Equals("ASC");
-            int total = 0;
+            //int pageIndex = Request["page"] == null ? 1 : int.Parse(Request["page"]);
+            //int pageSize = Request["rows"] == null ? 1 : int.Parse(Request["rows"]);
+            //string sortName = Request["sort"];
+            //string sortOrder = Request["order"];
+            //bool IsAsc = sortOrder == null ? true : sortOrder.ToUpper().Equals("ASC");
+            //int total = 0;
 
-            var data = service.Get(t => true, sortName, pageSize, pageIndex, out total, IsAsc);
-            var result = new { total = total, rows = data };
-            return Json(result, JsonRequestBehavior.AllowGet);
+            this.Rows = service.Get(t => true, this.SortName, PageSize, PageIndex, out Total, IsAsc);
+            //var result = new { total = total, rows = data };
+            //return Json(result, JsonRequestBehavior.AllowGet);
+            return DataGridResult();
         }
 
         // POST: User/Create

@@ -31,10 +31,8 @@
 #>
         <div class="fitem">
             <label><#= property.PropertyName#>：</label>
-            <select class="easyui-combobox" name="<#= property.PropertyName#>">
-                <option value="true">是</option>
-                <option value="false">否</option>
-            </select>
+            <input name="<#= property.PropertyName#>" type="checkbox" value="true"/>
+            <input name="<#= property.PropertyName#>" type="hidden" value="false"/>            
         </div>
 <#
             }

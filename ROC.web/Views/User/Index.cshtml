@@ -22,10 +22,8 @@
 
         <div class="fitem">
             <label>是否停用：</label>
-            <select class="easyui-combobox" name="IsStop">
-                <option value="true">是</option>
-                <option value="false">否</option>
-            </select>
+            <input name="IsStop" type="checkbox" value="true"/>
+            <input name="IsStop" type="hidden" value="false"/>
         </div>
         <div class="fitem">            
             <label>操作员：</label><input name="Operator" class="easyui-textbox" required="true" />
@@ -51,6 +49,7 @@
         {
             url: '/user/list',
             method: 'post',
+            singleSelect: true,
             rownumbers: true,
             pagination: true,
             fit: true,

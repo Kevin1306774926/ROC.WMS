@@ -39,7 +39,7 @@ namespace ROC.web.Controllers
                                 };
                     Total =model.ToList().Count();
                     Rows = model;
-                    Data = DataGridResult;
+                    Data = DataGridData;
                 }
             }
             catch(Exception ex)
